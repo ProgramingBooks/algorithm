@@ -243,7 +243,7 @@ class Sort {
 	}
 
 	/**
-	 * 堆排序
+	 * todo 堆排序
      * 第一个非叶子结点 count(arr)/2-1
 	 * @param array $data
 	 */
@@ -281,5 +281,191 @@ class Sort {
 		}
 
 		$data[$i] = $current;//将temp值放到最终的位置
+	}
+
+	/**
+	 * 计数排序
+	 * @param array $data
+	 * @return array
+	 */
+	public function count($data = array()) {
+
+		$count = count($data);
+		// 输出数组
+		$outArr = [];
+		// 辅助数组
+		$tmpArr = [];
+		// 查找最大的数
+		for ($i = 0; $i < $count - 1; $i++) {
+			if($data[$i] > $data[$i+1]) {
+				$tmp = $data[$i];
+				$data[$i] = $data[$i+1];
+				$data[$i+1] = $tmp;
+			}
+		}
+		$max = $data[$count-1];
+
+		// 初始化辅助数组
+		for ($i = 0; $i < $max+1; $i++) {
+			$tmpArr[$i] = 0;
+		}
+		// 初始化输出数组
+		for ($i = 0; $i < $count; $i++) {
+			$outArr[$i] = 0;
+		}
+		// 对次数进行统计
+		for ($i = 0; $i < $count; $i++) {
+			$tmpArr[$data[$i]]++;
+		}
+
+		// 累加求和
+		for ($i = 1; $i < count($tmpArr); $i++) {
+			$tmpArr[$i] = $tmpArr[$i] + $tmpArr[$i-1];
+		}
+
+		// 循环遍历到输出数组
+		for ($i = 0; $i < $count; $i++) {
+			// 记得减一，因为是从 0 开始
+			$outArr[$tmpArr[$data[$i]]-1] = $data[$i];
+			// 计数减1
+			$tmpArr[$data[$i]] --;
+		}
+		return $outArr;
+	}
+
+	/**
+	 * 桶排序
+	 * @param $data
+	 * @return array
+	 */
+	public function bucket($data) {
+		$outArr = [];
+		$tmpArr = [];
+		$count = count($data);
+
+		// 查找最大的值
+		for ($i=0; $i < $count - 1; $i++) {
+			if ($data[$i] > $data[$i+1]) {
+				$tmp = $data[$i+1];
+				$data[$i+1] = $data[$i];
+				$data[$i] = $tmp;
+			}
+		}
+		$max = $data[$count-1];
+
+		// 初始化桶，用 11 个桶, 桶保存的是链表, 每个桶的数据范围是 max/10
+		for ($i = 0; $i < 11; $i++) {
+			$tmpArr[$i] = new LinkedNode(); // 空的头节点
+		}
+
+		// 开始为桶加数据
+		for ($i = 0; $i < $count; $i++) {
+			//查找是在哪个桶
+			$n = floor($data[$i]/($max/10));
+			// 查找到桶之后对桶中的数据排序并插入,最好用链表，不需要移动元素
+			$b = $tmpArr[$n];
+			while ($b->next != NULL) {
+				if($data[$i] <= $b->next->data) {
+					break;
+				}else {
+					$b = $b->next;
+				}
+			}
+			$node = new LinkedNode($data[$i]);
+			$node->next = $b->next;
+			$b->next = $node;
+		}
+
+		// 将桶里的数据倒出来
+		for ($i = 0; $i < 11; $i++) {
+			$current = $tmpArr[$i]->next;
+			while ($current != NULL) {
+				array_push($outArr, $current->data);
+				$current = $current->next;
+			}
+		}
+
+		return $outArr;
+	}
+
+	/**
+	 * 基数排序
+	 * @param $data
+	 * @return array
+	 */
+	public function radix($data) {
+
+		$count = count($data);
+		// 查找数组的最大值
+		for ($i = 0; $i < $count-1; $i ++) {
+			if ($data[$i] > $data[$i+1]) {
+				$tmp = $data[$i+1];
+				$data[$i+1] = $data[$i];
+				$data[$i] = $tmp;
+			}
+		}
+		$max = $data[$count-1];
+		//获取最大位数
+		$len = strlen((string)$max);
+
+		return $this->_loopRadix($data, 1, $len);
+	}
+
+	/**
+	 * 循环
+	 * @param $arr
+	 * @param $digit
+	 * @param $len
+	 * @return array
+	 */
+	private function _loopRadix(array $arr, $digit, $len) {
+		if ($digit >= $len) {
+			return $arr;
+		}
+
+		// 利用计数排序对该位数的数字排序
+
+		// 构造临时桶数组
+		$tmpArr = [];
+		for ($i=0; $i < 10; $i++) {
+			$tmpArr[$i] = 0;
+		}
+		$outArr = [];
+		for ($i = 0; $i < count($arr); $i++) {
+			$outArr[$i] = 0;
+		}
+
+		// 桶放数据, 出现的次数加1
+		for ($i = 0; $i < count($arr); $i++) {
+			$tmpArr[$this->_getDigit($arr[$i], $digit)]++;
+		}
+
+		// 转化成下标索引
+		for ($i = 1; $i < 10; $i++) {
+			$tmpArr[$i] = $tmpArr[$i] + $tmpArr[$i-1];
+		}
+		// 输出到新数组, 注意：必须倒序输出！
+		for ($i = count($arr) -1; $i >= 0; $i--) {
+			$d = $this->_getDigit($arr[$i], $digit);
+			$outArr[$tmpArr[$d] - 1] = $arr[$i];
+			$tmpArr[$d]--;
+		}
+
+		return $this->_loopRadix($outArr, $digit + 1, $len);
+	}
+
+	/**
+	 * 获取某一个数字第 n 位的数字
+	 * @param $number 数字
+	 * @param $n 第几位 从右向左数
+	 * @return int
+	 */
+	private function _getDigit($number, $n) {
+		$pow = pow(10, $n - 1);
+		return ($number/$pow) % 10;
+	}
+
+	public function printArray($data) {
+		echo implode(",", $data)."\r\n";
 	}
 }
