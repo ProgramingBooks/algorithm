@@ -243,44 +243,62 @@ class Sort {
 	}
 
 	/**
-	 * @todo 堆排序
-     * 第一个非叶子结点 count(arr)/2-1
+	 * 堆排序
+	 * 第一个非叶子结点 count(arr)/2-1
 	 * @param array $data
+	 * @return array
 	 */
 	public function heap($data = array()) {
 
-		// 1. 构建大顶堆
-		for ($i = floor(count($data) / 2) - 1; $i >= 0; $i--) {
-			// 从下至上，从右至左调整
-			$this->_makeMaxHeap($data);
+		// 循环建堆
+		$count = count($data);
+		for ($i = 0; $i < $count - 1; $i++) {
+			// 构建大顶堆
+			$data = $this->_makeMaxHeap($count - $i - 1, $data);
+			// 交换堆顶元素和最后一个叶子元素，大顶堆的第一个元素是最大元素
+			$tmp = $data[0];
+			$data[0] = $data[$count - $i - 1];
+			$data[$count - $i - 1] = $tmp;
 		}
-
-		// 2. 交换堆顶元素和末尾元素，重新调整堆结构
+		return $data;
 	}
 
 	/**
-	 * 调整大顶堆
+	 * 构建大顶堆
 	 * 大顶堆：arr[i] >= arr[2i+1] && arr[i] >= arr[2i+2]
-	 * @param array $data
-	 * @param $i
+	 * @param array $data 数组
+	 * @param int $lastIndex 数组末尾位置
+	 * @return array
 	 */
-	private function _makeMaxHeap($i, $data = array()) {
-		$current = $data[$i];
+	private function _makeMaxHeap($lastIndex, $data = array()) {
 
-		for ($k = $i*2 + 1; $k < count($data); $k = $i*2 + 1) { //从i结点的左子结点开始，也就是2i+1处开始
-			if($k+1 < count($data) && $data[$k] < $data[$k+1]) { //如果左子结点小于右子结点，k 指向右子结点
-				$k++;
-			}
+		// 从最后 $lastIndex 节点的父节点开始，这里先假设 $lastIndex 为左节点
+		for ($i = floor(($lastIndex - 1) / 2); $i >= 0; $i--) {
+			$current = $i;
+			// 当前节点的子节点存在
+			while ($current * 2 + 1 <= $lastIndex) {
+				// 假设左节点索引是最大
+				$bigIndex = $current * 2 + 1;
+				// 判断是否存在右节点，lastIndex 如果比左节点索引大，说明存在右节点
+				if ($lastIndex > $bigIndex) {
+					// 比较左右左节点的值,记录较大值的索引
+					if ($data[$bigIndex] < $data[$bigIndex + 1]) {
+						$bigIndex++;
+					}
+				}
+				// 比较记录的大节点的值和当前节点值，交换
+				if ($data[$current] < $data[$bigIndex]) {
+					$tmp = $data[$current];
+					$data[$current] = $data[$bigIndex];
+					$data[$bigIndex] = $tmp;
 
-			if($data[$k] > $current){//如果子节点大于父节点，将子节点值赋给父节点（不用进行交换）
-				$data[$i] = $data[$k];
-				$i = $k;
-			}else{
-				break;
+					$current = $bigIndex;
+				}else {
+					break;
+				}
 			}
 		}
-
-		$data[$i] = $current;//将temp值放到最终的位置
+		return $data;
 	}
 
 	/**

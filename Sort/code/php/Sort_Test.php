@@ -35,6 +35,9 @@ echo "Merge sort: ".arrayToStr($sort->merge($data))."\r\n";
 // 希尔排序
 echo "Shell sort: ".arrayToStr($sort->shell($data))."\r\n";
 
+// 堆排序
+echo "Heap sort: ".arrayToStr($sort->heap($data))."\r\n";
+
 // 计数排序
 echo "Count sort: ".arrayToStr($sort->count($data))."\r\n";
 
