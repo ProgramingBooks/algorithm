@@ -1,7 +1,7 @@
 <?php
 /**
  * Search Class Test
-*/
+ */
 
 include 'Search.php';
 

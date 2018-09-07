@@ -1,7 +1,7 @@
 <?php
 /**
  * Sort Class Test
-*/
+ */
 
 include 'Sort.php';
 include 'LinkedNode.php';

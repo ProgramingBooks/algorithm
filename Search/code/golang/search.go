@@ -1,9 +1,8 @@
-package main
+package golang
 
 type Search struct {
 
 }
-
 
 // 顺序查找
 // data: 待查找的数组
@@ -45,7 +44,7 @@ func (s *Search) Interpolation(data []int, key int) int {
 	end := len(data) - 1
 
 	for start <= end {
-		middle := start + (end - start) * (data[key] - data[start]) / (data[end] - data[start])
+		middle := start + (end - start) * ((key - data[start]) / (data[end] - data[start]))
 		if key > data[middle] {
 			start = middle + 1
 		}else if key < data[middle] {
